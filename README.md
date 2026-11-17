@@ -12,6 +12,23 @@ picks which edge to follow next.
  Support Node             Sales Node
 ```
 
+## Screenshots
+
+**Canvas after a run.** The path taken is highlighted, each decision shows its YES/NO answer, and the edge
+followed is drawn bold. Untouched branches are dimmed.
+
+![Canvas after a completed run](docs/canvas-run.png)
+
+**Execution log.** One entry per node, with the raw model reply, latency and which provider/model answered.
+
+![Execution logs panel](docs/logs.png)
+
+**Inngest dev server.** Each workflow run executes as an Inngest function run, triggered by the
+`workflow/run.requested` event. The `run-workflow (failure)` row is the `onFailure` handler firing for a run that
+failed earlier (an invalid API key).
+
+![Inngest dev server runs list](docs/inngest-runs.png)
+
 ## Stack
 
 | Concern        | Choice                                   |
