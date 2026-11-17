@@ -44,9 +44,14 @@ Prefer two terminals? `pnpm dev` and `pnpm inngest`.
 | -------------------- | ----------------------------------------------------------------------- |
 | `OPENAI_API_KEY`     | Enables real LLM calls. **Leave empty to use mock mode** (see below).   |
 | `OPENAI_MODEL`       | Chat model to use. Default `gpt-4o-mini`.                               |
+| `OPENAI_BASE_URL`    | Optional. Point the OpenAI SDK at an OpenAI-compatible provider, e.g. Groq (`https://api.groq.com/openai/v1`). |
 | `INNGEST_DEV`        | `1` forces the SDK to talk to the local dev server.                     |
 | `INNGEST_BASE_URL`   | Dev server URL used for the health indicator. Default `http://127.0.0.1:8288`. |
 | `RUN_STORE_DIR`      | Where run records are written. Default `./.data/runs`.                  |
+
+**Free provider (Groq).** No OpenAI credits? Create a free key at <https://console.groq.com/keys> and set
+`OPENAI_API_KEY=gsk_...`, `OPENAI_BASE_URL=https://api.groq.com/openai/v1`, `OPENAI_MODEL=openai/gpt-oss-20b`.
+The code still uses the OpenAI SDK; only the endpoint changes.
 
 **Mock mode.** With no `OPENAI_API_KEY`, nodes are answered by a small deterministic keyword matcher
 so the whole pipeline (Inngest steps, branching, logs, retries) can be demoed offline. It is clearly

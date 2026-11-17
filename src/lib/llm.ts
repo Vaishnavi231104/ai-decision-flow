@@ -35,7 +35,11 @@ export function parseYesNo(raw: string): Branch | null {
 
 let client: OpenAI | null = null;
 function getClient() {
-  client ??= new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  // OPENAI_BASE_URL lets the OpenAI SDK talk to any OpenAI-compatible provider (Groq, OpenRouter, ...).
+  client ??= new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+    baseURL: process.env.OPENAI_BASE_URL || undefined,
+  });
   return client;
 }
 
@@ -92,11 +96,13 @@ export async function askYesNo(prompt: string, input: string): Promise<DecisionR
     }
     return { answer, rawResponse: raw.trim(), source: "openai", model };
   } catch (err) {
-    const status = (err as { status?: number }).status;
+    const { status, code } = err as { status?: number; code?: string | null };
     // Bad key / unknown model / bad request will never succeed on retry, so stop early.
-    if (status === 400 || status === 401 || status === 403 || status === 404) {
-      throw new NonRetriableError(`OpenAI request rejected (${status}): ${(err as Error).message}`, { cause: err });
+    // An exhausted quota ("no credits") also comes back as 429 but retrying cannot fix it.
+    const outOfQuota = status === 429 && (code === "insufficient_quota" || /credits|quota|billing/i.test((err as Error).message));
+    if (status === 400 || status === 401 || status === 403 || status === 404 || outOfQuota) {
+      throw new NonRetriableError(`LLM request rejected (${status}): ${(err as Error).message}`, { cause: err });
     }
-    throw err;
+    throw err; // transient (rate limit, 5xx, network): let Inngest retry
   }
 }
